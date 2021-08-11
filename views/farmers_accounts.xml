@@ -1,0 +1,432 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+    <!--creates menus and submenus for end users that contains details about the school -->
+    <record id="farmers_search_view" model="ir.ui.view"><!-- this creates a list view menu -->
+        <field name="name">farmers.search.view</field><!-- this should be the same as your id in the record tag -->
+        <field name="model">farmers.infinera</field><!-- this should be the same as the value for the variable '_name' from your model file -->
+        <field name="arch" type="xml"> <!-- defines a field where the name is an archive(arch) and the type is xml -->
+            <search string="Accounts"><!-- the tag 'tree' defines a list view -->
+                <field name="name" /><!-- this field creates a list item whose value is called from the variable 'name' from the model file -->
+                <field name="email" /><!-- this field creates a list item whose value is called from the variable 'email' from the model file -->
+                <field name="phone" /><!-- this field creates a list item whose value is called from the variable 'phone' from the model file -->
+                <field name="address"/>
+                <field name="program" />
+                <field name="form_state"/>
+            </search>
+        </field>
+    </record>
+
+    <record id="quick_create_account_form" model="ir.ui.view">
+            <field name="name">farmers.infinera.form.quick_create</field>
+            <field name="model">farmers.infinera</field>
+            <field name="priority">1000</field>
+            <field name="arch" type="xml">
+                <form>
+                    <group>
+                        <field name="name" required="1" string = "Farmer's Name"/>
+                        <field name="cluster_id" options="{'no_open': True,'no_create': True}"/>
+                        <field name="program" required="1" invisible="context.get('all_task', 1)"/>
+                    </group>
+                </form>
+            </field>
+        </record>
+
+    <record id="farmers_list_view" model="ir.ui.view"><!-- this creates a list view menu -->
+        <field name="name">farmers.list.view</field><!-- this should be the same as your id in the record tag -->
+        <field name="model">farmers.infinera</field><!-- this should be the same as the value for the variable '_name' from your model file -->
+        <field name="arch" type="xml"> <!-- defines a field where the name is an archive(arch) and the type is xml -->
+            <tree><!-- the tag 'tree' defines a list view -->
+                <field name="cluster_id"/>
+                <field name="name" /><!-- this field creates a list item whose value is called from the variable 'name' from the model file -->
+                <field name="email" /><!-- this field creates a list item whose value is called from the variable 'email' from the model file -->
+                <field name="phone" /><!-- this field creates a list item whose value is called from the variable 'phone' from the model file -->
+                <field name="program" />
+                <field name="total_production"/>
+                <field name="form_state"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="farmers_kanban_view" model="ir.ui.view">
+        <field name="name">farmers.kanban.view</field>
+        <field name="model">farmers.infinera</field>
+        <field name="arch" type="xml">
+            <kanban default_group_by="program" class="o_kanban_small_column o_opportunity_kanban" on_create="quick_create" quick_create_view="Farmers_account.quick_create_account_form" archivable="false" sample="1" examples="project">
+                <field name="color"/>
+                <!--<field name="activity_ids"/> -->
+                <field name="priority"/>
+                <progressbar field="kanban_state" colors='{"done": "success", "blocked": "danger", "normal": "muted"}' sum="total_production"/>
+                <templates>
+                    <t t-name="kanban-box">
+                        <div t-attf-class="#{!selection_mode ? kanban_color(record.color.raw_value) : ''} oe_kanban_global_click">
+                            <div class="o_dropdown_kanban dropdown">
+                                <a class="dropdown-toggle o-no-caret btn" role="button" data-toggle="dropdown" data-display="static" href="#" aria-label="Dropdown menu" title="Dropdown menu">
+                                    <span class="fa fa-ellipsis-v"/>
+                                </a>
+                                <div class="dropdown-menu" role="menu">
+                                    <t t-if="widget.editable"><a role="menuitem" type="edit" class="dropdown-item">Edit</a></t>
+                                    <t t-if="widget.deletable"><a role="menuitem" type="delete" class="dropdown-item">Delete</a></t>
+                                    <ul class="oe_kanban_colorpicker" data-field="color"/>
+                                </div>
+                            </div>
+                            <div class="oe_kanban_content">
+                                <div class="oe_kanban_content">
+                                    <div class="o_kanban_record_title">
+                                        <div t-attf-class="oe_content_kanban">
+                                            Farm Name:
+                                            <b><field name="name" /></b>
+                                        </div>
+                                    </div>
+                                    <div class="o_kanban_record_subtitle">
+                                        <t t-if="record.total_production.raw_value">
+                                            <b><field name="total_production" widget="monetary" options="{'currency_field': 'currency_id'}"/></b>
+                                        </t>
+                                    </div>
+                                </div>
+                                <div class="o_kanban_record_bottom" t-if="!selection_mode">
+                                    <div class="oe_kanban_bottom_left">
+                                        <field name="priority" widget="priority"/>
+                                        <!--<field name="activity_ids" widget="kanban_activity"/> -->
+                                        <!--<b t-if="record.rating_ids.raw_value.length">
+                                            <span style="font-weight:bold;" class="fa fa-fw mt4 fa-smile-o text-success" t-if="record.rating_last_value.value == 5" title="Latest Rating: Satisfied" role="img" aria-label="Happy face"/>
+                                            <span style="font-weight:bold;" class="fa fa-fw mt4 fa-meh-o text-warning" t-if="record.rating_last_value.value == 3" title="Latest Rating: Not Satisfied" role="img" aria-label="Neutral face"/>
+                                            <span style="font-weight:bold;" class="fa fa-fw mt4 fa-frown-o text-danger" t-if="record.rating_last_value.value == 1" title="Latest Rating: Higly Dissatisfied" role="img" aria-label="Sad face"/>
+                                        </b> -->
+                                        <!--<div name="date_deadline" attrs="{'invisible': [('is_closed', '=', True)]}">
+                                            <field name="date_deadline" widget="remaining_days"/>
+                                        </div> -->
+                                    </div>
+                                     <div class="oe_kanban_bottom_right" t-if="!selection_mode">
+                                        <field name="kanban_state" widget="state_selection" groups="base.group_user" invisible="context.get('fsm_mode', False)"/>
+                                        <field name="user_id" widget="many2one_avatar_user"/>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="programs_kanban_view" model="ir.ui.view">
+        <field name="name">programs.kanban.view</field>
+        <field name="model">farm.program</field>
+        <field name="arch" type="xml">
+            <kanban class="oe_background_grey o_kanban_dashboard o_project_kanban o_emphasize_colors" default_group_by="prog_name" examples="project">
+                <field name="color" />
+                <!--<field name="activity_ids"/> -->
+                <field name="priority"/>
+                <progressbar field="program_state" colors='{"done": "success", "blocked": "danger", "normal": "muted"}'/>
+                <templates>
+                    <t t-name="kanban-box">
+                            <div t-attf-class="#{kanban_color(record.color.raw_value)} oe_kanban_global_click o_has_icon">
+                                <div class="o_project_kanban_main">
+                                    <div class="o_kanban_card_content">
+                                        <div class="o_kanban_primary_left">
+                                            <div class="o_primary">
+                                                <div t-attf-class="oe_content_kanban">
+                                                    Program:
+                                                    <field name="prog_name" />
+                                                    <br/>
+                                                    Address:
+                                                    <field name="prog_desc" />
+                                                    <br/>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="o_kanban_card_manage_pane dropdown-menu" role="menu">
+                                        <div class="o_kanban_card_manage_section o_kanban_manage_reports">
+                                            <div role="menuitem">
+                                                <a type="delete">Delete</a>
+                                            </div>
+                                            <div role="menuitem">
+                                                <a type="edit">Edit</a>
+                                            </div>
+                                        </div>
+                                        <div role="menuitem" aria-haspopup="true" class="o_no_padding_kanban_colorpicker">
+                                            <ul class="oe_kanban_colorpicker" data-field="color" />
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="o_project_kanban_boxes">
+                                    <a class="o_project_kanban_box" name="action_view_accounts" type="object"/>
+                                </div>
+                            </div>
+                        </t>
+                </templates>
+            </kanban>
+        </field>
+    </record>
+
+    <record id="programs_list_view" model="ir.ui.view"><!-- this creates a list view menu -->
+        <field name="name">programs.list.view</field><!-- this should be the same as your id in the record tag -->
+        <field name="model">farm.program</field><!-- this should be the same as the value for the variable '_name' from your model file -->
+        <field name="arch" type="xml"> <!-- defines a field where the name is an archive(arch) and the type is xml -->
+            <tree><!-- the tag 'tree' defines a list view -->
+                <field name="prog_name"/><!-- this field creates a list item whose value is called from the variable 'name' from the model file -->
+                <field name="prog_desc" /><!-- this field creates a list item whose value is called from the variable 'email' from the model file -->
+            </tree>
+        </field>
+    </record>
+
+    <record id="inputcost_list_view" model="ir.ui.view"><!-- this creates a list view menu -->
+        <field name="name">inputcost.list.view</field><!-- this should be the same as your id in the record tag -->
+        <field name="model">farm.eop.inputcost</field><!-- this should be the same as the value for the variable '_name' from your model file -->
+        <field name="arch" type="xml"> <!-- defines a field where the name is an archive(arch) and the type is xml -->
+            <tree><!-- the tag 'tree' defines a list view -->
+                <field name="description"/><!-- this field creates a list item whose value is called from the variable 'name' from the model file -->
+                <field name="units"/><!-- this field creates a list item whose value is called from the variable 'email' from the model file -->
+                <field name="size"/><!-- this field creates a list item whose value is called from the variable 'phone' from the model file -->
+                <field name="quantity_required"/>
+                <field name="quantity_given"/>
+                <field name="unit_cost"/>
+                <field name="final_cost" sum="Final input costs"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="mechcost_list_view" model="ir.ui.view"><!-- this creates a list view menu -->
+        <field name="name">mechcost.list.view</field><!-- this should be the same as your id in the record tag -->
+        <field name="model">farm.mech</field><!-- this should be the same as the value for the variable '_name' from your model file -->
+        <field name="arch" type="xml"> <!-- defines a field where the name is an archive(arch) and the type is xml -->
+            <tree><!-- the tag 'tree' defines a list view -->
+                <field name="description"/><!-- this field creates a list item whose value is called from the variable 'name' from the model file -->
+                <field name="cost_per_unit"/><!-- this field creates a list item whose value is called from the variable 'email' from the model file -->
+                <field name="quantity"/><!-- this field creates a list item whose value is called from the variable 'phone' from the model file -->
+                <field name="Totalcost" sum="Total sum of mechanization"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="labourcost_list_view" model="ir.ui.view"><!-- this creates a list view menu -->
+        <field name="name">labourcost.list.view</field><!-- this should be the same as your id in the record tag -->
+        <field name="model">labour.farm</field><!-- this should be the same as the value for the variable '_name' from your model file -->
+        <field name="arch" type="xml"> <!-- defines a field where the name is an archive(arch) and the type is xml -->
+            <tree><!-- the tag 'tree' defines a list view -->
+                <field name="labour_task"/><!-- this field creates a list item whose value is called from the variable 'name' from the model file -->
+                <field name="worker"/><!-- this field creates a list item whose value is called from the variable 'email' from the model file -->
+                <field name="quantity"/><!-- this field creates a list item whose value is called from the variable 'phone' from the model file -->
+                <field name="costperunit"/>
+                <field name="Totalcost" sum="Total cost of Labour"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="totalcost_list_view" model="ir.ui.view"><!-- this creates a list view menu -->
+        <field name="name">totalcost.list.view</field><!-- this should be the same as your id in the record tag -->
+        <field name="model">totals.total</field><!-- this should be the same as the value for the variable '_name' from your model file -->
+        <field name="arch" type="xml"> <!-- defines a field where the name is an archive(arch) and the type is xml -->
+            <tree><!-- the tag 'tree' defines a list view -->
+                <field name="total"/><!-- this field creates a list item whose value is called from the variable 'name' from the model file -->
+                <field name="name"/>
+            </tree>
+        </field>
+    </record>
+
+
+    <!-- creates a form which can be viewed from as a directory from the odoo create button -->
+    <record id="farm_form_view" model="ir.ui.view"><!-- creates a form view option -->
+        <field name="name">farm.form.view</field><!-- this should be the same as your id in the parent record tag above -->
+        <field name="model">farmers.infinera</field><!-- this should be the same as the value for the variable '_name' from your model file -->
+        <field name="arch" type="xml">
+            <form string="Farm Name"><!-- creates a form view -->
+                <header>
+                    <field name="form_state" widget="statusbar" statusbar_visible="draft,confirm,done" options="{'clickable': '1'}"/>
+                </header>
+                <sheet name="New"> <!--this creates a sheet where your form is embedded -->
+                    <div class="oe_title">
+                        <h1>
+                            <field name="name" on_change="onchange_service(name)" default_focus="1" placeholder="Farmer's Name" options="{'no_create_edit':True}"/>
+                        </h1>
+                    </div>
+                    <group> <!-- this serves as a main group in the arrangement of your forms -->
+                        <group> <!-- This is a sub group that's under the main group above odoo will automatically group the form into sections -->
+                            <field name="email" />
+                            <field name="lga" placeholder="LGA"/>
+                            <field name="zip" placeholder="ZIP"/>
+                            <field name="state" placeholder="State"/>
+                            <field name="crop_type" placeholder="Crop type"/>
+                            <field name="cluster_id" />
+                            <field name="comm_association"/>
+                            <field name="farm_size"/>
+                            <field name="program"/>
+                        </group>
+                        <group>
+                            <field name="currency_id"/>
+                            <field name="LoanRecovery"/>
+                            <field name="Extension"/>
+                            <field name="insuranceval"/>
+                            <field name="adminfee_val"/>
+                            <field name="mande_val"/>
+                            <field name="sub_total"/>
+                            <field name="insurance_amount"/>
+                            <field name="mande_amount"/>
+                            <field name="admin_amount"/>
+                            <br/>
+                            <b><field name="total_production" string="Total production costs"/></b>
+                        </group>
+                    </group>
+                    <notebook>
+                        <page string="Input Costs" name="input_cost">
+                            <field name="input_costs" widget="section_and_note_many2many"/>
+                        </page>
+                        <page string="Mechanization Costs" name="mech_cost">
+                            <field name="mech_costs" widget="section_and_note_many2many"/>
+                        </page>
+                        <page string="Labour Costs" name="labour_cost">
+                            <field name="labour_costs" widget="section_and_note_many2many"/>
+                        </page>
+                    </notebook>
+
+                </sheet>
+                <div class="oe_chatter"> <!-- for creating the chatter box below the form view -->
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+
+    <record id="program_form_view" model="ir.ui.view"><!-- creates a form view option -->
+        <field name="name">program.form.view</field><!-- this should be the same as your id in the parent record tag above -->
+        <field name="model">farm.program</field><!-- this should be the same as the value for the variable '_name' from your model file -->
+        <field name="arch" type="xml">
+            <form string="Program Name"><!-- creates a form view -->
+                <sheet name="Farm Program"> <!--this creates a sheet where your form is embedded -->
+                    <group> <!-- this serves as a main group in the arrangement of your forms -->
+                        <group> <!-- This is a sub group that's under the main group above odoo will automatically group the form into sections -->
+                            <!-- this field creates a list item whose value is called from the variable 'name' from the model file -->
+                            <field name="prog_name"/>
+                            <field name="prog_desc"/><!-- this field creates a list item whose value is called from the variable 'email' from the model file -->
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="input_form_view" model="ir.ui.view"><!-- creates a form view option -->
+        <field name="name">input.form.view</field><!-- this should be the same as your id in the parent record tag above -->
+        <field name="model">farm.eop.inputcost</field><!-- this should be the same as the value for the variable '_name' from your model file -->
+        <field name="arch" type="xml">
+            <form><!-- creates a form view -->
+                <sheet name="New Input Cost"> <!--this creates a sheet where your form is embedded -->
+                    <group> <!-- this serves as a main group in the arrangement of your forms -->
+                        <group> <!-- This is a sub group that's under the main group above odoo will automatically group the form into sections -->
+                            <field name="description"/><!-- this field creates a list item whose value is called from the variable 'name' from the model file -->
+                            <field name="units"/><!-- this field creates a list item whose value is called from the variable 'email' from the model file -->
+                            <field name="size"/><!-- this field creates a list item whose value is called from the variable 'phone' from the model file -->
+                            <field name="quantity_required"/>
+                            <field name="currency_id"/>
+                        </group>
+                        <group>
+                            <field name="quantity_given"/>
+                            <field name="unit_cost"/>
+                            <field name="final_cost" sum="Final input costs"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+    <record id="labour_form_view" model="ir.ui.view"><!-- creates a form view option -->
+        <field name="name">labour.form.view</field><!-- this should be the same as your id in the parent record tag above -->
+        <field name="model">labour.farm</field><!-- this should be the same as the value for the variable '_name' from your model file -->
+        <field name="arch" type="xml">
+            <form><!-- creates a form view -->
+                <sheet name="New Labour"> <!--this creates a sheet where your form is embedded -->
+                    <group> <!-- this serves as a main group in the arrangement of your forms -->
+                        <group> <!-- This is a sub group that's under the main group above odoo will automatically group the form into sections -->
+                            <field name="labour_task"/><!-- this field creates a list item whose value is called from the variable 'name' from the model file -->
+                            <field name="worker"/><!-- this field creates a list item whose value is called from the variable 'email' from the model file -->
+                            <field name="quantity"/><!-- this field creates a list item whose value is called from the variable 'phone' from the model file -->
+                            <field name="currency_id"/>
+                        </group>
+                        <group>
+                            <field name="costperunit"/>
+                            <field name="Totalcost" sum="Total cost of Labour"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+    <record id="mech_form_view" model="ir.ui.view"><!-- creates a form view option -->
+        <field name="name">mech.form.view</field><!-- this should be the same as your id in the parent record tag above -->
+        <field name="model">farm.mech</field><!-- this should be the same as the value for the variable '_name' from your model file -->
+        <field name="arch" type="xml">
+            <form><!-- creates a form view -->
+                <sheet name="New"> <!--this creates a sheet where your form is embedded -->
+                    <group> <!-- this serves as a main group in the arrangement of your forms -->
+                        <group> <!-- This is a sub group that's under the main group above odoo will automatically group the form into sections -->
+                            <field name="description"/><!-- this field creates a list item whose value is called from the variable 'name' from the model file -->
+                            <field name="quantity"/><!-- this field creates a list item whose value is called from the variable 'phone' from the model file -->
+                        </group>
+                        <group>
+                            <field name="currency_id"/>
+                            <field name="cost_per_unit"/><!-- this field creates a list item whose value is called from the variable 'email' from the model file -->
+                            <field name="Totalcost" sum="Total sum of mechanization"/>
+                        </group>
+                    </group>
+                </sheet>
+            </form>
+        </field>
+    </record>
+
+
+    <!-- ACTIONS -->
+    <!--creates a build on sequence that can be accessed on the front end -->
+    <record id="action_farm_profile" model="ir.actions.act_window">
+        <field name="name">Accounts</field><!-- this should be the same as your id in the parent record tag above -->
+        <field name="res_model">farmers.infinera</field><!-- this defines the res_model, this should be the same as the value for the variable '_name' from your model file -->
+        <field name="view_mode">tree,kanban,form</field><!-- this would make the action call the tree list view first then the form view after -->
+    </record>
+
+    <record id="action_farm_programs" model="ir.actions.act_window">
+        <field name="name">Programs</field><!-- this should be the same as your id in the parent record tag above -->
+        <field name="res_model">farm.program</field><!-- this defines the res_model, this should be the same as the value for the variable '_name' from your model file -->
+        <field name="view_mode">kanban,form</field><!-- this would make the action call the tree list view first then the form view after -->
+    </record>
+
+    <record id="action_input_cost" model="ir.actions.act_window">
+        <field name="name">Input Costs</field><!-- this should be the same as your id in the parent record tag above -->
+        <field name="res_model">farm.eop.inputcost</field><!-- this defines the res_model, this should be the same as the value for the variable '_name' from your model file -->
+        <field name="view_mode">tree,form</field><!-- this would make the action call the tree list view first then the form view after -->
+    </record>
+
+    <record id="action_mech_cost" model="ir.actions.act_window">
+        <field name="name">Mechanization Costs</field><!-- this should be the same as your id in the parent record tag above -->
+        <field name="res_model">farm.mech</field><!-- this defines the res_model, this should be the same as the value for the variable '_name' from your model file -->
+        <field name="view_mode">tree,form</field><!-- this would make the action call the tree list view first then the form view after -->
+    </record>
+
+    <record id="action_labour_cost" model="ir.actions.act_window">
+        <field name="name">Labour Costs</field><!-- this should be the same as your id in the parent record tag above -->
+        <field name="res_model">labour.farm</field><!-- this defines the res_model, this should be the same as the value for the variable '_name' from your model file -->
+        <field name="view_mode">tree,form</field><!-- this would make the action call the tree list view first then the form view after -->
+    </record>
+
+
+    <!--creates menus and submenus for end users -->
+    <menuitem id="farm_root_menu" name="Infinera Farm Accounts" sequence="0" web_icon="farmers_account,static/description/icon.png" /> <!--this creates the main menu which can be visible from the odoo main menu button -->
+    <menuitem id="programs_menu" name="Farmers Programs" action="action_farm_programs" sequence="1" parent="farm_root_menu"/>
+    <menuitem id="farm_profile_menu" name="Farms" action="action_farm_profile" sequence="2" parent="farm_root_menu"/><!-- creates an action menu inside the sub menu above, the argument 'action' will be the same as your windows action record tag id above -->
+    <menuitem id="eop_sub_menu" parent="farm_root_menu" sequence="3" name="Operations"/>
+    <menuitem id="farm_inputcost_menu" name="Farm Inputs" action="action_input_cost" sequence="0" parent="eop_sub_menu" />
+    <menuitem id="farm_mechcost_menu" name="Mechanization Cost" action="action_mech_cost" sequence="1" parent="eop_sub_menu" />
+    <menuitem id="farm_labourcost_menu" name="Labour Costs" action="action_labour_cost" sequence="2" parent="eop_sub_menu" />
+    <menuitem id="farm_totalcost_menu" name="Total Costs" action="action_total_costs" sequence="3" parent="eop_sub_menu" />
+</odoo>
+
+<!-- Notes.
+1. whenever we want to create a view we have to label the model in the record tag as "ir.ui.view" 
+2. But whenever we want to create an action we have to label the model in the action tag as "ir.actions.act_window"
+3. the record id is up to your own discretion
+4. there are 3 types of views: tree view, form view and kanban view -->

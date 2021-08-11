@@ -1,0 +1,7 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_farmers_infinera,access_farmers_infinera,model_farmers_infinera,base.group_user,1,1,1,1
+access_farmers_programs,access_farmers_programs,model_farm_program,base.group_user,1,1,1,
+access_farmers_input,access_farmers_input,model_farm_eop_inputcost,base.group_user,1,1,1,
+access_farmers_mech,access_farmers_mech,model_farm_mech,base.group_user,1,1,1,
+access_labour_farm,access_labour_farm,model_labour_farm,base.group_user,1,1,1,
+access_totals_farm,access_totals_farm,model_totals_total,base.group_user,1,1,1,

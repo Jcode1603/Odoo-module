@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<odoo>
+     <record id="labourcost_list_view" model="ir.ui.view"><!-- this creates a list view menu -->
+        <field name="name">labourcost.list.view</field><!-- this should be the same as your id in the record tag -->
+        <field name="model">labour.farm</field><!-- this should be the same as the value for the variable '_name' from your model file -->
+        <field name="arch" type="xml"> <!-- defines a field where the name is an archive(arch) and the type is xml -->
+            <tree><!-- the tag 'tree' defines a list view -->
+                <field name="labour_task"/><!-- this field creates a list item whose value is called from the variable 'name' from the model file -->
+                <field name="worker"/><!-- this field creates a list item whose value is called from the variable 'email' from the model file -->
+                <field name="quantity"/><!-- this field creates a list item whose value is called from the variable 'phone' from the model file -->
+                <field name="costperunit"/>
+                <field name="Totalcost" sum="Total cost of Labour"/>
+            </tree>
+        </field>
+    </record>
+
+    <record id="labour_form_view" model="ir.ui.view"><!-- creates a form view option -->
+        <field name="name">labour.form.view</field><!-- this should be the same as your id in the parent record tag above -->
+        <field name="model">labour.farm</field><!-- this should be the same as the value for the variable '_name' from your model file -->
+        <field name="arch" type="xml">
+            <form><!-- creates a form view -->
+                <sheet name="New Labour"> <!--this creates a sheet where your form is embedded -->
+                    <group> <!-- this serves as a main group in the arrangement of your forms -->
+                        <group> <!-- This is a sub group that's under the main group above odoo will automatically group the form into sections -->
+                            <field name="labour_task"/><!-- this field creates a list item whose value is called from the variable 'name' from the model file -->
+                            <field name="worker"/><!-- this field creates a list item whose value is called from the variable 'email' from the model file -->
+                            <field name="quantity"/><!-- this field creates a list item whose value is called from the variable 'phone' from the model file -->
+                            <field name="currency_id"/>
+                        </group>
+                        <group>
+                            <field name="costperunit"/>
+                            <field name="Totalcost" sum="Total cost of Labour"/>
+                        </group>
+                    </group>
+                </sheet>
+                <div class="oe_chatter"> <!-- for creating the chatter box below the form view -->
+                    <field name="message_follower_ids"/>
+                    <field name="activity_ids"/>
+                    <field name="message_ids"/>
+                </div>
+            </form>
+        </field>
+    </record>
+</odoo>
