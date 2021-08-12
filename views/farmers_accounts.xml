@@ -246,7 +246,6 @@
                         <group> <!-- This is a sub group that's under the main group above odoo will automatically group the form into sections -->
                             <field name="email" />
                             <field name="lga" placeholder="LGA"/>
-                            <field name="zip" placeholder="ZIP"/>
                             <field name="state" placeholder="State"/>
                             <field name="crop_type" placeholder="Crop type"/>
                             <field name="cluster_id" />
