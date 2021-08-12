@@ -10,9 +10,13 @@ class Farm_Customers(models.Model):
     def set_form_values(self):
         for rec in self:
             if rec.name:
-                rec.cluster_id = rec.name.vat
-                rec.email = rec.name.email
+                rec.cluster_id = rec.name.x_studio_cluster_id_1
+                rec.email = rec.name.x_studio_last_name
                 rec.phone = rec.name.phone
+                rec.lga = rec.name.x_studio_lga_name
+                rec.comm_association = rec.name.x_studio_commodity_association
+                rec.state = rec.state_id
+                rec.crop_type = rec.x_studio_produce_funded
 
     @api.depends('input_costs.final_cost')
     def _compute_input_totals(self):
@@ -62,10 +66,10 @@ class Farm_Customers(models.Model):
     #farm details field
     name = fields.Many2one('res.partner', string="Farmer's Name", required=True)  # this creates a variable 'name' with a character type field
     user_id = fields.Many2one('res.users')
-    email = fields.Char(string='Email', required=True)
+    email = fields.Char(string='Last Name', required=True)
     phone = fields.Char(string='Farmer Telephone')
     address = fields.Char(string='Address')
-    crop_type = fields.Selection([('maize', 'Maize'), ('soybeans', 'Soybeans'), ('sorghum', 'Sorghum'), ('cowpea', 'Cowpea'), ('sesame', 'Sesame'), ('rice', 'Rice'), ('cassava', 'Cassava')], string='Crop type')
+    crop_type = fields.Selection(string='Produce Funded',[('maize', 'Maize'), ('soybeans', 'Soybeans'), ('sorghum', 'Sorghum'), ('cowpea', 'Cowpea'), ('sesame', 'Sesame'), ('rice', 'Rice'), ('cassava', 'Cassava')], string='Crop type')
     cluster_id = fields.Char(string='Cluster ID')
     comm_association = fields.Char(string='Commodity Association')
     farm_size = fields.Integer(string='Farm Size', default=1)
